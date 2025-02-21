@@ -65,9 +65,19 @@ app.post('/upload', upload.single('excelFile'), async (req, res) => {
         await delay(2000);
       } catch (error) {
         console.error(`Failed to send email to ${email}:`, error.message);
-      
+        let errorMessage = "Something went wrong while sending the email. Please try again later.";
+
+        if (error.message.includes("many login attempts")) {
+          errorMessage = "You have reached the email sending limit. Please wait before trying again.";
+        } 
+        // else if (error.message.includes("Invalid login")) {
+        //   errorMessage = "Email sending failed due to authentication issues. Please check your email settings.";
+        // } 
+        else if (error.message.includes("Invalid recipient")) {
+          errorMessage = "The email address provided is invalid. Please check and try again.";
+        }
         // Send error response properly formatted
-        res.write(JSON.stringify({ error: `Failed to send email try again after sometime` }) + '\n');
+        res.write(JSON.stringify({ error: errorMessage }) + '\n');
       }
       
     }
